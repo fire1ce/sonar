@@ -117,9 +117,12 @@ remove_logrotate() {
 
 remove_log_ln() {
     local get_path
-    get_path="$(find "${HOME}" -name "sonar.log")"
-    if [[ -h "${get_path}/sonar.log" ]]; then
-        sudo rm -f /var/log/sonar.log "${get_path}"
+    get_path="$(find "${HOME}" -name "sonar.log" -type l)"
+    if [[ -n "${get_path}" ]]; then
+        sudo rm -f "${get_path}"
+    fi
+    if [[ -f "/var/log/sonar.log" ]]; then
+        sudo rm -f "/var/log/sonar.log"
     fi
 }
 
