@@ -69,7 +69,7 @@ trap 'err_exit $? $LINENO' ERR
 ask_uninstall() {
     local remove
     if [[ -d "${HOME}/sonar" ]] && [[ -x "/usr/local/bin/sonar" ]]; then
-        read -rp "Do you REALLY want to remove existing 'sonar'? [y/N]: " -i "N" remove
+        read -erp "Do you REALLY want to remove existing 'sonar'? [y/N]: " -i "N" remove
         while true; do
             case "${remove}" in
                 [yY]* )
