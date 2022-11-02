@@ -102,7 +102,7 @@ import_config() {
     ## Source config if present
     if [[ -s tools/.config ]]; then
         # shellcheck disable=SC1091
-        source tools/.config
+        . tools/.config
         return 0
     else
         config_msg
