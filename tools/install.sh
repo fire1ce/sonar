@@ -180,7 +180,7 @@ install_logrotate() {
     # install logrotate
     echo -en "Install logrotate file ...\r"
     cp -rf "${logrotatefile}" /etc/logrotate.d/sonar
-    sed -i 's|%LOGPATH%|'"${logpath}/sonar.log"'|g' /etc/logrotate.d/sonar
+    sed -i 's|%LOGPATH%|'"${logpath}"'|g' /etc/logrotate.d/sonar
     echo -e "Install logrotate file ... [${CN_OK}]\r"
 }
 
