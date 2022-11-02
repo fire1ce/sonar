@@ -32,8 +32,9 @@ if [ "${DEBIAN_FRONTEND}" != "noninteractive" ]; then
 fi
 
 ### Check non-root
-if [ "${UNATTENDED}" == "false" ] && [ ${UID} == '0' ]; then
-    echo -e "DO NOT RUN THIS SCRIPT AS ROOT!\nExiting..."
+if [[ ${UID} != '0' ]]; then
+    echo -e "\n\tYOU NEED TO RUN INSTALLER AS ROOT!"
+    echo -e "\tPlease try 'sudo make install'\nExiting..."
     exit 1
 fi
 
