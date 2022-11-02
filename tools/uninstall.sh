@@ -13,7 +13,11 @@
 # Global Vars
 TITLE="Sonar - A WiFi Keepalive daemon"
 
-### Functions
+# Message Vars
+SR_OK="\e[32mOK\e[0m"
+# SR_SK="\e[33mSKIPPED\e[0m" # kept for later use
+
+### Global functions
 
 ### Messages
 ### Welcome Message
@@ -42,18 +46,18 @@ cleanup() {
     # make sure that all child processed die when we die
     echo -e "Killed by user ...\r\nGoodBye ...\r"
     # shellcheck disable=2046
-    [ -n "$(jobs -pr)" ] && kill $(jobs -pr) && sleep 5 && kill -9 $(jobs -pr)
+    [[ -n "$(jobs -pr)" ]] && kill $(jobs -pr) && sleep 5 && kill -9 $(jobs -pr)
 }
 ##
 
 err_exit() {
-    if [ "${1}" != "0" ]; then
+    if [[ "${1}" != "0" ]]; then
         echo -e "ERROR: Error ${1} occured on line ${2}"
         echo -e "ERROR: Stopping $(basename "$0")."
         echo -e "Goodbye..."
     fi
     # shellcheck disable=2046
-    [ -n "$(jobs -pr)" ] && kill $(jobs -pr) && sleep 5 && kill -9 $(jobs -pr)
+    [[ -n "$(jobs -pr)" ]] && kill $(jobs -pr) && sleep 5 && kill -9 $(jobs -pr)
     exit 1
 }
 
@@ -64,19 +68,24 @@ trap 'err_exit $? $LINENO' ERR
 ### Uninstall sonar
 ask_uninstall() {
     local remove
-    if [ -d "${HOME}/sonar" ]; then
-        read -rp "Do you REALLY want to remove existing 'sonar'? (YES/NO) " remove
-        if [ "${remove}" = "YES" ]; then
-            sudo echo -e "\nPlease enter your password!"
-            uninstall_sonar
-            remove_logrotate
-            remove_log_ln
-            goodbye_msg
-        else
-            echo -e "\nYou answered '${remove}'! Uninstall will be aborted..."
-            echo -e "GoodBye...\n"
-            exit 1
-        fi
+    if [[ -d "${HOME}/sonar" ]] && [[ -x "/usr/local/bin/sonar" ]]; then
+        read -rp "Do you REALLY want to remove existing 'sonar'? [y/N]: " -i "N" remove
+        while true; do
+            case "${remove}" in
+                [yY]* )
+                    sudo echo -e "\nPlease enter your password!"
+                    break
+                ;;
+                [nN]* )
+                    echo -e "\nUninstall aborted by user! Exiting..."
+                    echo -e "GoodBye...\n"
+                    exit 1
+                ;;
+                *)
+                    echo -e "\nInvalid input, please try again."
+                ;;
+            esac
+        done
     else
         echo -e "\n'sonar' seems not installed."
         echo -e "Exiting. GoodBye ..."
@@ -89,34 +98,40 @@ uninstall_sonar() {
     bin_path="/usr/local/bin/sonar"
     echo -en "\nStopping sonar.service ...\r"
     sudo systemctl stop sonar.service &> /dev/null
-    echo -e "Stopping sonar.service ... \t[OK]\r"
+    echo -e "Stopping sonar.service ... \t[${SR_OK}]\r"
     echo -en "Uninstalling sonar.service...\r"
-    if [ -f "${servicefile}" ]; then
+    if [[ -f "${servicefile}" ]]; then
         sudo rm -f "${servicefile}"
     fi
-    if [ -x "${bin_path}" ]; then
+    if [[ -x "${bin_path}" ]]; then
         sudo rm -f "${bin_path}"
     fi
-    echo -e "Uninstalling sonar.service...[OK]\r"
+    echo -e "Uninstalling sonar.service...[${SR_OK}]\r"
 }
 
 remove_logrotate() {
     echo -en "Removing Logrotate Rule ...\r"
     sudo rm -f /etc/logrotate.d/sonar
-    echo -e "Removing Logrotate Rule ... [OK]"
+    echo -e "Removing Logrotate Rule ... [${SR_OK}]"
 }
 
 remove_log_ln() {
     local get_path
     get_path="$(find "${HOME}" -name "sonar.log")"
-    if [ -h "${get_path}/sonar.log" ]; then
+    if [[ -h "${get_path}/sonar.log" ]]; then
         sudo rm -f /var/log/sonar.log "${get_path}"
     fi
 }
 
-#### MAIN
-install_cleanup_trap
-welcome_msg
-ask_uninstall
+main() {
+    install_cleanup_trap
+    welcome_msg
+    ask_uninstall
+    uninstall_sonar
+    remove_logrotate
+    remove_log_ln
+    goodbye_msg
+}
 
+main
 exit 0
