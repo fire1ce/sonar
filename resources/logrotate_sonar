@@ -9,7 +9,7 @@
 #### This File is distributed under GPLv3
 ####
 
-%LOGPATH% {
+/var/log/sonar.log {
     rotate 1
     missingok
     notifempty
