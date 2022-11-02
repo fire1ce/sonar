@@ -173,12 +173,12 @@ specify_log_path() {
     default_path_msg
     read -erp "Please enter path: " reply
     if [[ -z "${reply}" ]]; then
-        echo -e "SONAR_LOG_PATH=\"${SR_CONFIG_LOGPATH}/sonar.log\"" >> \
+        echo -e "SONAR_LOG_PATH=\"${SR_CONFIG_LOGPATH}\"" >> \
         "${SR_CONFIG_CONFIGFILE}"
         return 0
     fi
     if [[ -n "${reply}" ]]; then
-        echo -e "SONAR_LOG_PATH=\"${reply}/sonar.log\"" >> "${SR_CONFIG_CONFIGFILE}"
+        echo -e "SONAR_LOG_PATH=\"${reply}\"" >> "${SR_CONFIG_CONFIGFILE}"
         return 0
     fi
 }
