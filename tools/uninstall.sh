@@ -17,13 +17,13 @@ TITLE="Sonar - A WiFi Keepalive daemon"
 
 ### Messages
 ### Welcome Message
-function welcome_msg {
+welcome_msg() {
     echo -e "${TITLE}\n"
     echo -e "\tSome Parts of the Uninstaller requires 'root' privileges."
     echo -e "\tYou will be prompted for your 'sudo' password, if needed.\n"
 }
 
-function goodbye_msg {
+goodbye_msg() {
     echo -e "Please remove manually the 'sonar' folder in ${HOME}"
     echo -e "After that is done, please reboot!\nGoodBye...\n"
 }
@@ -33,12 +33,12 @@ function goodbye_msg {
 ## Credits to guysoft!
 ## https://github.com/guysoft/CustomPiOS
 
-function install_cleanup_trap() {
+install_cleanup_trap() {
     # kills all child processes of the current process on SIGINT or SIGTERM
     trap 'cleanup' SIGINT SIGTERM
 }
 
-function cleanup() {
+cleanup() {
     # make sure that all child processed die when we die
     echo -e "Killed by user ...\r\nGoodBye ...\r"
     # shellcheck disable=2046
@@ -46,7 +46,7 @@ function cleanup() {
 }
 ##
 
-function err_exit {
+err_exit() {
     if [ "${1}" != "0" ]; then
         echo -e "ERROR: Error ${1} occured on line ${2}"
         echo -e "ERROR: Stopping $(basename "$0")."
@@ -62,7 +62,7 @@ trap 'err_exit $? $LINENO' ERR
 
 
 ### Uninstall sonar
-function ask_uninstall {
+ask_uninstall() {
     local remove
     if [ -d "${HOME}/sonar" ]; then
         read -rp "Do you REALLY want to remove existing 'sonar'? (YES/NO) " remove
@@ -83,7 +83,7 @@ function ask_uninstall {
     fi
 }
 
-function uninstall_sonar {
+uninstall_sonar() {
     local servicefile bin_path
     servicefile="/etc/systemd/system/sonar.service"
     bin_path="/usr/local/bin/sonar"
@@ -100,13 +100,13 @@ function uninstall_sonar {
     echo -e "Uninstalling sonar.service...[OK]\r"
 }
 
-function remove_logrotate {
+remove_logrotate() {
     echo -en "Removing Logrotate Rule ...\r"
     sudo rm -f /etc/logrotate.d/sonar
     echo -e "Removing Logrotate Rule ... [OK]"
 }
 
-function remove_log_ln {
+remove_log_ln() {
     local get_path
     get_path="$(find "${HOME}" -name "sonar.log")"
     if [ -h "${get_path}/sonar.log" ]; then
